@@ -1,0 +1,10 @@
+-- DROP TABLE IF EXISTS WEATHER;
+--
+-- CREATE TABLE WEATHER (
+--   id INT AUTO_INCREMENT  PRIMARY KEY,
+--   cityName VARCHAR(250) NOT NULL,
+--   countryCode VARCHAR(250) NOT NULL,
+--   travelDate DATE NOT NULL,
+--   temperature INT DEFAULT NULL,
+--   clouds VARCHAR(250) DEFAULT NULL
+-- );

@@ -1,0 +1,51 @@
+<h2 class="content-block">Itineraries</h2>
+
+<dx-data-grid class="dx-card wide-card"
+  [dataSource]="dataSource"
+  [showBorders]="false"
+  [focusedRowEnabled]="true"
+  [focusedRowIndex]="0"
+  [columnAutoWidth]="true"
+  [columnHidingEnabled]="true">
+
+  <dxo-paging [pageSize]="10"></dxo-paging>
+  <dxo-pager [showPageSizeSelector]="true" [showInfo]="true"></dxo-pager>
+  <dxo-filter-row [visible]="true"></dxo-filter-row>
+
+  <dxi-column
+    dataField="Itinerary_ID"
+    [width]="90"
+    [hidingPriority]="2">
+  </dxi-column>
+  <dxi-column
+    dataField="City_Name"
+    [width]="190"
+    caption="Subject"
+    [hidingPriority]="8">
+  </dxi-column>
+  <dxi-column
+    dataField="Date"
+    caption="Status"
+    [hidingPriority]="6">
+  </dxi-column>
+  <dxi-column
+    dataField="Country_Code"
+    caption="Priority"
+    [hidingPriority]="5">
+    <dxo-lookup
+      [dataSource]="priority"
+      valueExpr="value"
+      displayExpr="name">
+    </dxo-lookup>
+  </dxi-column>
+  <dxi-column
+    dataField="Temperature"
+    caption="Priority"
+    [hidingPriority]="1">
+  </dxi-column>
+  <dxi-column
+    dataField="Clouds"
+    caption="Completion"
+    [hidingPriority]="0">
+  </dxi-column>
+</dx-data-grid>

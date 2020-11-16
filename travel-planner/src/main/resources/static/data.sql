@@ -1,0 +1,4 @@
+-- INSERT INTO WEATHER (id, cityName, countryCode, travelDate, temperature, clouds) VALUES
+-- ('Tokyo', 'TOK129', 11/15/2020, 10, 'shinny'),
+-- ('Moscow', 'MOS785', 11/18/2020, 5, 'rainy'),
+-- ('London', 'LON128', 11/19/2020, -3, 'shinny');

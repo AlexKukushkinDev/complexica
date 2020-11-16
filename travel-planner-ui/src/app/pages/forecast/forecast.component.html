@@ -1,0 +1,26 @@
+<h2 class="content-block">Forecast</h2>
+<div class="content-block dx-card responsive-paddings">
+  <dx-form id="form"
+    [formData]="dataSource"
+    labelLocation="top"
+    [colCountByScreen]="colCountByScreen"
+    (onFieldDataChanged)="onFieldChanged($event)"
+  >
+  </dx-form>
+  <dx-button
+    class="submitButton"
+    stylingMode="text"
+    text="Submit"
+    type="normal"
+    [width]="120"
+    (onClick)="onSubmit()">
+  </dx-button>
+  <dx-button
+    class="generateSummaryButton"
+    stylingMode="text"
+    text="Generate Summary"
+    type="normal"
+    [width]="200"
+    (onClick)="generateSummary()">
+  </dx-button>
+</div>
