@@ -95,8 +95,18 @@ export class ForecastComponent {
                 for (let i = 0; i < generatedSummary.length; i++) {
                     if (generatedSummary[i].date === todayDate) {
                       weatherMessage = generatedSummary[i].weatherDescription;
+
+                      weatherMessage += `.`;
+                      if (parseInt(generatedSummary[i].temperature[0]) < 5) {
+                        weatherMessage += `<br>It's cold. Please take a coat!`;
+                      }
                     }
                 }
+
+                if (weatherMessage.toLowerCase().includes('rain')) {
+                    weatherMessage += `<br>It's raining. You should take an umbrella!`;
+                } 
+                
                 this.showGeneratedSummary(weatherMessage);
             }   
         })
