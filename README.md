@@ -1,6 +1,10 @@
 
 ## The Travel Planner App by Alex Kukushkin
 
+The project consists of two parts:
+    * travel-planner (backend part - Java 11, Spring Boot 2.4.0, H2 in-memory database)
+    * travel-planner-ui (frontend part - Angular 10, DevExtreme api) -> this part includes the README file with instructions as well
+
 ## Cloning the Repository:
 Clone and cd the directory.
 
