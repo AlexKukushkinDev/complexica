@@ -8,9 +8,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import com.alicp.jetcache.anno.Cached;
-import com.travelapp.travelplanner.models.dto.ForecastRecordDto;
-import com.travelapp.travelplanner.models.dto.WeatherDTO;
-import com.travelapp.travelplanner.models.dto.WeatherMapTimeDTO;
+import com.travelapp.travelplanner.models.dto.*;
 import com.travelapp.travelplanner.models.entities.ForecastRecord;
 import com.travelapp.travelplanner.models.entities.Weather;
 import com.travelapp.travelplanner.repositories.ICityRepository;
@@ -45,15 +43,11 @@ public class ForecastRecordServiceImpl implements IForecastRecordService {
     IWeatherRepository weatherRepository;
 
     @Override
-    public void save(ForecastRecordDto forecastRecordDto) {
+    public void save(ForecastRecordDTO forecastRecordDto) {
         Optional<ForecastRecord> verifyForecastRecord = forecastRecordRepository.findById(forecastRecordDto.getForecastId());
 
         if (verifyForecastRecord.isPresent()) {
             throw new IllegalArgumentException("ID is duplicated");
-        }
-
-        if (forecastRecordDto.getTemperature().length > 24) {
-            throw new IllegalArgumentException("More than 24 temperatures");
         }
 
         ForecastRecord forecastRecord = ForecastConverter.convertForecastDtoToEntity(forecastRecordDto);
@@ -65,13 +59,13 @@ public class ForecastRecordServiceImpl implements IForecastRecordService {
     }
 
     @Override
-    public List<ForecastRecordDto> getAll() {
+    public List<ForecastRecordDTO> getAll() {
         List<ForecastRecord> forecastRecords = forecastRecordRepository.findAll();
         return fetchToDto(forecastRecords);
     }
 
     @Override
-    public List<ForecastRecordDto> getAllByWeatherDate(String sDate) {
+    public List<ForecastRecordDTO> getAllByWeatherDate(String sDate) {
         Date date = Date.valueOf(sDate);
         List<ForecastRecord> forecastRecords = forecastRecordRepository.findAllByWeatherDate(date);
         return fetchToDto(forecastRecords);
@@ -83,7 +77,7 @@ public class ForecastRecordServiceImpl implements IForecastRecordService {
         forecastRecordRepository .deleteAll();
     }
 
-    private List<ForecastRecordDto> fetchToDto(List<ForecastRecord> forecastRecords) {
+    private List<ForecastRecordDTO> fetchToDto(List<ForecastRecord> forecastRecords) {
         return forecastRecords.stream().map(
                 forecast -> ForecastConverter.convertForecastEntityToDto(forecast, getTemperatures(forecast))
         ).collect(Collectors.toList());
@@ -104,33 +98,55 @@ public class ForecastRecordServiceImpl implements IForecastRecordService {
 
     @Cached(expire = 60, timeUnit = TimeUnit.MINUTES)
     public ResponseEntity<?> getGeneralSummary(String cityName, String weatherDate) {
-        List<ForecastRecordDto> list = new ArrayList<>();
-        ForecastRecordDto forecastRecordDto = new ForecastRecordDto();
+        List<ForecastRecordDTO> forecastList = new ArrayList<>();
+        ForecastRecordDTO forecastRecordDto = new ForecastRecordDTO();
         Boolean isRainy = true;
 
-        for (ForecastRecordDto item : list) {
-            if (Float.parseFloat(item.getTemperature()[0]) >= 5 && isRainy) {
-                forecastRecordDto.setMessage("It's raining. You should take an umbrella!");
-            } else if (Float.parseFloat(item.getTemperature()[0]) < 5) {
-                forecastRecordDto.setMessage("It's cold. Please take a coat!");
-            }
-        }
-        return getResponseEntity(cityName, weatherDate);
-    }
-
-    private ResponseEntity<?> getResponseEntity(String cityName, String weatherDate) {
-        List<ForecastRecordDto> result = new ArrayList<>();
         try {
-            WeatherDTO weatherMap = this.restTemplate.getForObject(this.url(cityName, weatherDate), WeatherDTO.class);
+            WeatherMapDTO weatherMapDTO = this.restTemplate.getForObject(this.url(cityName, weatherDate), WeatherMapDTO.class);
 
             for (LocalDate reference = LocalDate.now();
                  reference.isBefore(LocalDate.now().plusDays(2));
                  reference = reference.plusDays(1)) {
+
                 final LocalDate ref = reference;
-                List<WeatherMapTimeDTO> weatherMapTimeDTOList = weatherMap.getList().stream()
+                List<WeatherMapTimeDTO> weatherMapTimeDTOList = weatherMapDTO.getList().stream()
                         .filter(x -> x.getDt().toLocalDate().equals(ref)).collect(Collectors.toList());
                 if (!CollectionUtils.isEmpty(weatherMapTimeDTOList)) {
-                    result.add(this.collect(weatherMapTimeDTOList));
+                    forecastList.add(this.collect(weatherMapTimeDTOList, weatherMapDTO.getCity()));
+                }
+
+            }
+
+            for (ForecastRecordDTO item : forecastList) {
+                if (Float.parseFloat(item.getTemperature().get(0)) >= 5 && isRainy) {
+                    forecastRecordDto.setMessage("It's raining. You should take an umbrella!");
+                } else if (Float.parseFloat(item.getTemperature().get(0)) < 5) {
+                    forecastRecordDto.setMessage("It's cold. Please take a coat!");
+                }
+            }
+
+        } catch (HttpClientErrorException e) {
+            return new ResponseEntity<>(new Json(e.getResponseBodyAsString()), e.getStatusCode());
+        }
+        return new ResponseEntity<>(forecastList, HttpStatus.OK);
+//        return getResponseEntity(cityName, weatherDate);
+    }
+
+    private ResponseEntity<?> getResponseEntity(String cityName, String weatherDate) {
+        List<ForecastRecordDTO> result = new ArrayList<>();
+        try {
+            WeatherMapDTO weatherMapDTO = this.restTemplate.getForObject(this.url(cityName, weatherDate), WeatherMapDTO.class);
+
+            for (LocalDate reference = LocalDate.now();
+                 reference.isBefore(LocalDate.now().plusDays(2));
+                 reference = reference.plusDays(1)) {
+
+                final LocalDate ref = reference;
+                List<WeatherMapTimeDTO> weatherMapTimeDTOList = weatherMapDTO.getList().stream()
+                        .filter(x -> x.getDt().toLocalDate().equals(ref)).collect(Collectors.toList());
+                if (!CollectionUtils.isEmpty(weatherMapTimeDTOList)) {
+                    result.add(this.collect(weatherMapTimeDTOList, weatherMapDTO.getCity()));
                 }
 
             }
@@ -141,17 +157,23 @@ public class ForecastRecordServiceImpl implements IForecastRecordService {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    private ForecastRecordDto collect(List<WeatherMapTimeDTO> list) {
-        ForecastRecordDto result = new ForecastRecordDto();
+
+    private ForecastRecordDTO collect(List<WeatherMapTimeDTO> list, CityDto cityDto) {
+        ForecastRecordDTO result = new ForecastRecordDTO();
 
         for (WeatherMapTimeDTO item : list) {
-            result.setWeatherDate(item.getDt().toLocalDate().toString());
+            result.setDate(item.getDt().toLocalDate());
+            result.setCityName(cityDto.getName());
+            result.setCountryCode(cityDto.getCountry());
+            result.plusMap(item);
         }
+
+        result.totalize();
 
         return result;
     }
 
     private String url(String cityName, String weatherDate) {
-        return String.format(URI.concat("?q=%s").concat("&appid=%s").concat("&units=metric"), cityName, weatherDate, AppID);
+        return String.format(URI.concat("?q=%s").concat("&appid=%s").concat("&units=metric"), cityName, AppID);
     }
 }

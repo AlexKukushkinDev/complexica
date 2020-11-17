@@ -1,6 +1,6 @@
 package com.travelapp.travelplanner.controllers;
 
-import com.travelapp.travelplanner.models.dto.ForecastRecordDto;
+import com.travelapp.travelplanner.models.dto.ForecastRecordDTO;
 import com.travelapp.travelplanner.services.IForecastRecordService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -9,32 +9,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 import javax.validation.Valid;
+import java.util.List;
 
-
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
-//@RequestMapping("weather")
 public class WeatherController {
     @Autowired
     IForecastRecordService forecastRecordService;
-
-//    @ApiOperation(value = "add bookings")
-//    @RequestMapping(
-//            produces = {"application/json"},
-//            consumes = {"application/json"},
-//            method = RequestMethod.POST)
-//    public ResponseEntity<Booking> addBookings(@RequestBody Booking booking) {
-//        Booking savedBooking;
-//        try {
-//            savedBooking = bookingService.addBookings(booking);
-//        } catch (ApiException e) {
-//            throw new BookingsApiException(e.getHttpStatus(), e.getMessage());
-//        } catch (Exception e) {
-//            throw new BookingsApiException(HttpStatus.BAD_REQUEST, e.getMessage());
-//        }
-//        return new ResponseEntity<>(savedBooking, HttpStatus.CREATED);
-//    }
 
     @ApiOperation("Return a JSON object that gives the weather averages.")
     @PostMapping(value = "/forecast", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -53,15 +35,15 @@ public class WeatherController {
     }
 
     @PostMapping("/weather")
-    public ResponseEntity<Object> createForecastRecord(@Valid @RequestBody ForecastRecordDto forecastRecordDto) {
+    public ResponseEntity<Object> createForecastRecord(@Valid @RequestBody ForecastRecordDTO forecastRecordDto) {
         forecastRecordService.save(forecastRecordDto);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @GetMapping("/weather")
-    public ResponseEntity<List<ForecastRecordDto>> getAllByDate(@RequestParam(required = false) String date) {
+    public ResponseEntity<List<ForecastRecordDTO>> getAllByDate(@RequestParam(required = false) String date) {
         try {
-            List<ForecastRecordDto> forecastRecordDtos;
+            List<ForecastRecordDTO> forecastRecordDtos;
 
             if (date == null) {
                 forecastRecordDtos = forecastRecordService.getAll();

@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.sql.Date;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -15,7 +15,7 @@ public class ForecastRecord {
     private Long forecastId;
 
     @Column(name = "weatherDate")
-    private Date weatherDate;
+    private LocalDate weatherDate;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "city", referencedColumnName = "cityId")

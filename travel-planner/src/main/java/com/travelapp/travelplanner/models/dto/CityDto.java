@@ -7,6 +7,6 @@ import java.io.Serializable;
 @Getter
 @Setter
 public class CityDto implements Serializable {
-    private String cityName;
-    private String countryCode;
+    private String name;
+    private String country;
 }
