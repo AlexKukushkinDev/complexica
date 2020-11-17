@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "DevExtreme-App": {
+    "Travel-Planner-App": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -39,7 +39,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/DevExtreme-App",
+            "outputPath": "dist/Travel-Planner-App",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -92,18 +92,19 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "DevExtreme-App:build"
+            "browserTarget": "Travel-Planner-App:build",
+            "proxyConfig": "./proxy.conf.json"
           },
           "configurations": {
             "production": {
-              "browserTarget": "DevExtreme-App:build:production"
+              "browserTarget": "Travel-Planner-App:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "DevExtreme-App:build"
+            "browserTarget": "Travel-Planner-App:build"
           }
         },
         "test": {
@@ -140,16 +141,16 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "DevExtreme-App:serve"
+            "devServerTarget": "Travel-Planner-App:serve"
           },
           "configurations": {
             "production": {
-              "devServerTarget": "DevExtreme-App:serve:production"
+              "devServerTarget": "Travel-Planner-App:serve:production"
             }
           }
         }
       }
     }
   },
-  "defaultProject": "DevExtreme-App"
+  "defaultProject": "Travel-Planner-App"
 }

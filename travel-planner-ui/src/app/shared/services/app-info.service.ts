@@ -8,13 +8,28 @@ import { custom } from 'devextreme/ui/dialog';
 import { errorHandler } from '../../../app/shared/components/error-handler'
 import { HttpErrorResponse, HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { catchError, map, timeout } from 'rxjs/operators';
+import { BehaviorSubject } from 'rxjs';
 
 
 const API_URL = env.url;
+let forecastList = [];
+
+export class ForecastData {
+  Itinerary_ID: number;
+  City_Name: string;
+  Date: string;
+  Country_Code: string;
+  Temperature: string;
+  Clouds: string;
+}
 
 @Injectable()
 export class AppInfoService {
   public defaultHeaders = new HttpHeaders();
+
+  public forecastSource = new BehaviorSubject(null);
+
+  forecastInfo = this.forecastSource.asObservable();
 
   constructor(
     protected http: HttpClient
@@ -33,19 +48,12 @@ export class AppInfoService {
     let requestLink = `${API_URL}/forecast`;
 
     const formData = new FormData();
-    let headers = this.defaultHeaders;
-    let contentType = 'application/json';
-
-    debugger
     formData.append('cityName', body.cityName);
     formData.append('weatherDate', body.weatherDate);
 
-    const httpHeaderAccepts: string[] = ["application/json"];
-
     return this.http.post(requestLink, formData,{ responseType: 'text' }).pipe(
-        timeout(1000),
+        timeout(60000),
         map(res => {
-            debugger
             return res;
         }),
         catchError((error) => { return errorHandler(error); })
@@ -56,19 +64,14 @@ export class AppInfoService {
     let requestLink = `${API_URL}/summary`;
 
     const formData = new FormData();
-    let headers = this.defaultHeaders;
-    let contentType = 'application/json';
-
-    debugger
     formData.append('cityName', body.cityName);
     formData.append('weatherDate', body.weatherDate);
 
     const httpHeaderAccepts: string[] = ["application/json"];
 
     return this.http.post(requestLink, formData,{ responseType: 'text' }).pipe(
-        timeout(1000),
+        timeout(60000),
         map(res => {
-            debugger
             return res;
         }),
         catchError((error) => { return errorHandler(error); })
@@ -89,4 +92,28 @@ export class AppInfoService {
     errorMessage.show();
   }
 
+  setForecastSource(forecast: JSON) {
+    this.forecastSource.next(forecast);
+  }
+
+  setForecast(data) {
+    forecastList = [];
+
+    for (let i = 0; i < data.length; i++) {
+        let forecastInfo = new ForecastData();
+
+        forecastInfo.Itinerary_ID = i + 1;
+        forecastInfo.City_Name = data[i].cityName;
+        forecastInfo.Country_Code = data[i].countryCode;
+        forecastInfo.Date = data[i].date;
+        forecastInfo.Temperature = data[i].temperature[0];
+        forecastInfo.Clouds = data[i].weatherDescription;
+
+        forecastList.push(forecastInfo);
+    }
+  }
+
+  getForecast() {
+      return forecastList;
+  }
 }

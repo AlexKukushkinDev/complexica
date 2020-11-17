@@ -1,7 +1,7 @@
 <h2 class="content-block">Itineraries</h2>
 
 <dx-data-grid class="dx-card wide-card"
-  [dataSource]="dataSource"
+  [dataSource]="forecastDataSource"
   [showBorders]="false"
   [focusedRowEnabled]="true"
   [focusedRowIndex]="0"
@@ -14,38 +14,34 @@
 
   <dxi-column
     dataField="Itinerary_ID"
-    [width]="90"
-    [hidingPriority]="2">
+    [width]="150"
+    caption="Forecast ID"
+    [hidingPriority]="0">
   </dxi-column>
   <dxi-column
     dataField="City_Name"
-    [width]="190"
-    caption="Subject"
-    [hidingPriority]="8">
-  </dxi-column>
-  <dxi-column
-    dataField="Date"
-    caption="Status"
-    [hidingPriority]="6">
-  </dxi-column>
-  <dxi-column
-    dataField="Country_Code"
-    caption="Priority"
-    [hidingPriority]="5">
-    <dxo-lookup
-      [dataSource]="priority"
-      valueExpr="value"
-      displayExpr="name">
-    </dxo-lookup>
-  </dxi-column>
-  <dxi-column
-    dataField="Temperature"
-    caption="Priority"
+    [width]="200"
+    caption="City"
     [hidingPriority]="1">
   </dxi-column>
   <dxi-column
+    dataField="Country_Code"
+    caption="Country Code"
+    [hidingPriority]="2">
+  </dxi-column>
+  <dxi-column
+    dataField="Date"
+    caption="Weather Date"
+    [hidingPriority]="3">
+  </dxi-column>
+  <dxi-column
+    dataField="Temperature"
+    caption="Temperature"
+    [hidingPriority]="4">
+  </dxi-column>
+  <dxi-column
     dataField="Clouds"
-    caption="Completion"
-    [hidingPriority]="0">
+    caption="Weather Information"
+    [hidingPriority]="5">
   </dxi-column>
 </dx-data-grid>

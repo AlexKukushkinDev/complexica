@@ -1,0 +1,16 @@
+{
+    "/api/travel-app/*": {
+        "target": "http://localhost:8080",
+        "secure": false,
+        "logLevel": "debug",
+        "changeOrigin": true,
+        "headers": {
+            "Accept": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Content-Type": "application/json"
+        },
+        "pathRewrite": {
+            "^/api": ""
+        }
+    }
+}

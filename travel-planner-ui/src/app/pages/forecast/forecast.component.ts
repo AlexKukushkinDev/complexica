@@ -22,8 +22,7 @@ export class ForecastComponent {
   @ViewChild('form') form: NgForm;
 
 
-  public historySubscription : any = null;
-  public uploadHistory: any = [];
+  public forecastData: any = [];
   public agreementsSource: any = [];
   public formValuesChangeSubscription: any = null;
 
@@ -36,8 +35,8 @@ export class ForecastComponent {
     public appInfoService: AppInfoService
   ) {
     this.dataSource = {
-      cityName: 'Tokyo',
-      weatherDate: new Date('11/16/2020'),
+      cityName: '',
+      weatherDate: new Date(),
     };
     this.colCountByScreen = {
       xs: 1,
@@ -47,8 +46,11 @@ export class ForecastComponent {
   }
 
 
+  ngOnInit() {
+    // some code here;
+  }
+
   onFieldChanged(event) {
-    debugger
     console.log(event);
 
     if (event && event.datafield == 'cityName') {
@@ -59,15 +61,57 @@ export class ForecastComponent {
   }
 
   onSubmit() {
-    return this.appInfoService.submitData(this.dataSource);
+    return this.appInfoService.submitData(this.dataSource)
+        .then((response: any) => {
+            if (response) {
+              console.log(response);
+                this.showForecastInfo(response);
+            }   
+        })
+        .catch((error) => {
+          console.log('VALIDATE ERROR: ', error);
+
+          if (error && error.message) {
+            if (error.message.includes("TMS Server not responding")) {
+            } else if (error.statusCode == 400) {
+              this.showErrorMessage(error);   
+            } else { 
+              this.showErrorMessage(error);
+            }
+          }
+      });
   }
 
   generateSummary() {
-    return this.appInfoService.generateSummary(this.dataSource);
-  }
+    return this.appInfoService.generateSummary(this.dataSource)
+        .then((response: any) => {
+            if (response) {
+              console.log(response);
+                let weatherMessage = null;
+                const todayDate = new Date().toISOString().slice(0,10);
 
-  ngOnInit() {
-    // this.subscribeFormValuesChanges();
+                let generatedSummary = JSON.parse(response);
+
+                for (let i = 0; i < generatedSummary.length; i++) {
+                    if (generatedSummary[i].date === todayDate) {
+                      weatherMessage = generatedSummary[i].weatherDescription;
+                    }
+                }
+                this.showGeneratedSummary(weatherMessage);
+            }   
+        })
+      .catch((error) => {
+          console.log('VALIDATE ERROR: ', error);
+
+          if (error && error.message) {
+            if (error.message.includes("TMS Server not responding")) {
+            } else if (error.statusCode == 400) {
+              this.showErrorMessage(error);   
+            } else { 
+              this.showErrorMessage(error);
+            }
+          }
+      });
   }
 
   /* Refresh form and set default values depending on the selected data type */
@@ -174,18 +218,23 @@ export class ForecastComponent {
     }
   }
 
-  showForecastInfo() {
-    // this.historySubscription = this.appInfoService.getRatingHistory().subscribe(
-    // (res: any) => {
-    //   if (res) {
-    //     // this.historyResult = res;
-    //     // this.dataService.setHistory(res);
-    //     // this.uploadHistory = this.dataService.getHistory();
-    //     // this.showMapping = false;
-    //   } else {
-    //     return null;
-    //   }
-    // })
+  showForecastInfo(data) {
+    this.appInfoService.setForecastSource(data);
+    this.router.navigate(['itineraries']);
+  }
+
+  showGeneratedSummary(info) {
+    let message = custom({
+      title: "Weather Summary",
+      messageHtml: info ? `The weather today is - ${info}` : `The weather if fine today. Enjoy the rest of the day!`,
+      buttons: [{
+        text: "Ok",
+        onClick: (e) => {
+          return { buttonText: e.component.option("text") }
+        }
+      }]
+    });
+    message.show();
   }
 
   goNext() {

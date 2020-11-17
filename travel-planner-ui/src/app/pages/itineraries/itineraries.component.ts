@@ -1,4 +1,8 @@
 import { Component } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AppInfoService } from '../../shared/services/app-info.service';
+import 'rxjs/add/operator/debounceTime';
+import 'rxjs/add/operator/distinctUntilChanged';
 import 'devextreme/data/odata/store';
 
 @Component({
@@ -6,31 +10,39 @@ import 'devextreme/data/odata/store';
 })
 
 export class ItinerariesComponent {
-  dataSource: any;
+  forecastDataSource: any[];
   priority: any[];
 
-  constructor() {
-    this.dataSource = {
-      store: {
-        type: 'odata',
-        key: 'Task_ID',
-        url: 'https://js.devexpress.com/Demos/DevAV/odata/Tasks'
-      },
-      expand: 'ResponsibleEmployee',
-      select: [
-        'Itinerary_ID',
-        'City_Name',
-        'Date',
-        'Country_Code',
-        'Temperature',
-        'Clouds'
-      ]
-    };
+  constructor(
+    protected router: Router,
+    protected route: ActivatedRoute,
+    public appInfoService: AppInfoService
+  ) {
     this.priority = [
       { name: 'High', value: 4 },
       { name: 'Urgent', value: 3 },
       { name: 'Normal', value: 2 },
       { name: 'Low', value: 1 }
     ];
+  }
+
+  ngOnInit() {
+    this.showForecastGrid();
+  }
+
+  showForecastGrid() {
+    this.appInfoService.forecastInfo.debounceTime(150).distinctUntilChanged().subscribe((result) => {
+      let data = result;
+
+      if (result) {
+        data = JSON.parse(result);
+        this.appInfoService.setForecast(data);
+        this.forecastDataSource = this.appInfoService.getForecast();
+      }
+  });
+  }
+
+  ngOnDestroy() {
+    // unsubscribe subscriptions
   }
 }

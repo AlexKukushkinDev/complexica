@@ -8,21 +8,19 @@
 }
 
 .submitButton {
-  width: 150px;
   height: auto;
   border: 1px solid forestgreen;
   background: forestgreen;
   margin-top: 30px;
-  margin-left: 45px;
+  // margin-left: 455px;
 }
 
 .generateSummaryButton {
-  width: 230px;
   height: auto;
-  border: 1px solid blue;
-  background: blue;
+  border: 1px solid forestgreen;
+  background: forestgreen;
   margin-top: 30px;
-  margin-left: 45px;
+  margin-left: 40px;
 }
 
 ::ng-deep .dx-button-mode-text {
@@ -31,3 +29,26 @@
   font-weight: bold;
   box-shadow: none;
 }
+
+::ng-deep .dx-overlay-content {
+  position: absolute;
+  pointer-events: auto;
+  z-index: 1000;
+  outline: 0;
+  overflow: hidden;
+  width: 500px;
+  text-align: center;
+  font-size: 18px;
+}
+
+.content-block {
+  margin-left: 450px;
+  margin-right: 500px;
+  margin-top: 20px;
+
+  .screen-x-small & {
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+}
+
